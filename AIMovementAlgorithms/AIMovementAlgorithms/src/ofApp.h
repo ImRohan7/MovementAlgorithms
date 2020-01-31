@@ -23,8 +23,13 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 
-		// Game Var
+		// Game Variables
 		// ============
+		// 1-Kinematic Algo
+
+		void kinematicSetup();
+		void kinemtaicDraw();
+		void kinematicUpdate();
 		void kinematicMotion();
 
 };

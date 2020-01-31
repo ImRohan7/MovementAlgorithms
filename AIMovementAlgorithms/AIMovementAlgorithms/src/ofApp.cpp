@@ -4,72 +4,40 @@
 namespace {
 	int sHeight = 1080/2; // Y
 	int sWidth = 1920/2; // X
-	float sRotation = 0.0f;
-	ofVec2f offset(50,0);
-	
+	// Kinematic
 	physics::Kinematic p1;
 	physics::SteeringOutput s1;
-	ofVec2f A;
-	ofVec2f B;
-	ofVec2f C;
-
-
 	int sState = 1;
 	std::vector<ofVec2f> breadCrumbs;
+	float sPassedTime;
+
 
 	void leaveCrumbs();
-	float sPassedTime;
 }
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	p1.mPosition = ofVec2f(100, sHeight);
-	p1.mVelocity = ofVec2f(5,0);
-	p1.mOrientation = 0.0f; // radians
-	s1.mAngular = 0.0;
-	s1.mLinear = ofVec2f(2.0f,0.0f);
-
-	A = ofVec2f(0, -50);
-	B = ofVec2f(0, 50);
-	C = ofVec2f(100, 0);
 	
-	leaveCrumbs();
-
-//	p1.mVelocity = ofVec2f(2, 0);
+	kinematicSetup();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	p1.update(s1, ofGetLastFrameTime());
-	
-	sRotation++;
-
-	kinematicMotion();
-
-	sPassedTime += ofGetLastFrameTime();
-	if (sPassedTime > 0.2)
-		leaveCrumbs();
+	kinematicUpdate();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	kinemtaicDraw();
+}
 
-	ofTranslate(p1.mPosition.x, p1.mPosition.y);
-	ofRotateZRad(p1.mOrientation); // rotate
-	ofSetColor(150, 200, 0);
-	ofDrawTriangle(A, B, C);
-	ofSetColor(225, 0, 0);
-	ofDrawCircle(0,0, 50);
 
-	
-	ofRotateZRad(-p1.mOrientation); // rotate
-	ofTranslate(-p1.mPosition.x, -p1.mPosition.y); //reset
-
-	for (ofVec2f v : breadCrumbs)
+namespace {
+	void leaveCrumbs()
 	{
-		ofDrawCircle(v, 20);
+		sPassedTime = 0;
+		breadCrumbs.push_back(p1.mPosition);
 	}
-	
 }
 
 void ofApp::kinematicMotion()
@@ -110,19 +78,51 @@ void ofApp::kinematicMotion()
 			p1.mVelocity = ofVec2f(1, 0);
 			p1.mOrientation = p1.getNewOrientation(p1.mVelocity, p1.mOrientation); // rotaion
 			p1.mVelocity = ofVec2f(0, 0);
-			cout << breadCrumbs.size();
 		}
 	default:
 		break;
 	}
 }
 
-namespace {
-	void leaveCrumbs()
+
+void ofApp::kinematicSetup()
+{
+	p1.mPosition = ofVec2f(100, sHeight);
+	p1.mVelocity = ofVec2f(5, 0);
+	p1.mOrientation = 0.0f; // radians
+	s1.mAngular = 0.0;
+	s1.mLinear = ofVec2f(2.0f, 0.0f);
+
+	leaveCrumbs();
+}
+
+
+void ofApp::kinemtaicDraw()
+{
+	ofTranslate(p1.mPosition.x, p1.mPosition.y);
+	ofRotateZRad(p1.mOrientation); // rotate
+	ofSetColor(150, 200, 0);
+	ofDrawTriangle(ofVec2f(0, -50), ofVec2f(0, 50), ofVec2f(100, 0));
+	ofSetColor(225, 0, 0);
+	ofDrawCircle(0, 0, 50);
+
+	ofRotateZRad(-p1.mOrientation); // rotate
+	ofTranslate(-p1.mPosition.x, -p1.mPosition.y); //reset
+
+	for (ofVec2f v : breadCrumbs)
 	{
-		sPassedTime = 0;
-		breadCrumbs.push_back(p1.mPosition);
+		ofDrawCircle(v, 20);
 	}
+}
+
+void ofApp::kinematicUpdate()
+{
+	p1.update(s1, ofGetLastFrameTime());
+	kinematicMotion();
+
+	sPassedTime += ofGetLastFrameTime();
+	if (sPassedTime > 0.2)
+		leaveCrumbs();
 }
 
 //--------------------------------------------------------------
