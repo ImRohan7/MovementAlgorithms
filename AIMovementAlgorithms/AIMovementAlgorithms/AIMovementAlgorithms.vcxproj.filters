@@ -10,6 +10,9 @@
     <ClCompile Include="src\Kinematic.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="KinemSeek.cpp">
+      <Filter>KinemSeek</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -18,6 +21,9 @@
     <Filter Include="addons">
       <UniqueIdentifier>{e1b3a2e4-08cb-4b6d-9b42-394b04e5d871}</UniqueIdentifier>
     </Filter>
+    <Filter Include="KinemSeek">
+      <UniqueIdentifier>{918b197e-421a-4c32-b4fe-4b6f5503dfed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
@@ -25,6 +31,9 @@
     </ClInclude>
     <ClInclude Include="src\Kinematic.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="KinemSeek.h">
+      <Filter>KinemSeek</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

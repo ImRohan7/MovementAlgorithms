@@ -176,11 +176,13 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="KinemSeek.cpp" />
     <ClCompile Include="src\Kinematic.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="KinemSeek.h" />
     <ClInclude Include="src\Kinematic.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>
