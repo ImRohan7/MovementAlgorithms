@@ -9,15 +9,17 @@ namespace {
 	int sWidth = 1920/2; // X
 	// Kinematic
 	physics::Kinematic p1;
+	physics::Kinematic tar;
 	AI::KinemSeek seek;
 	physics::SteeringOutput steer;
-	ofVec2f target(600, 600);
+	
 	int sState = 1;
 	std::vector<ofVec2f> breadCrumbs;
 	float sPassedTime;
-
+	float sCrumbTime = 0.3f;
 
 	void leaveCrumbs();
+	void DrawCrumbs();
 }
 
 //--------------------------------------------------------------
@@ -26,36 +28,70 @@ void ofApp::setup(){
 
 	p1.mPosition = ofVec2f(200, 200);
 	p1.mVelocity = ofVec2f(0.2, 2);
-	seek = AI::KinemSeek(p1, target, 4.0f);
-	
+	tar.mPosition = ofVec2f(600, 600);
+	tar.mVelocity = ofVec2f(1, 1);
+	seek = AI::KinemSeek(p1, tar, 8.0f);
+	seek.mMaxAccel = 10;
+	seek.mSlowRad = 200;
+	seek.mTargetRad = 40;
+	seek.mTimeTotarget = 0.4f;
+
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	//kinematicUpdate();
-	steer = seek.getSteering();
+	steer = seek.getSteeringForArrival();
 	seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
+	seek.mTarget.update(physics::SteeringOutput() , ofGetLastFrameTime()); // update
 
 	if (ofGetMousePressed())
 	{
-		seek.mTarget = ofVec2f(ofGetMouseX(), ofGetMouseY());
+		seek.mTarget.mPosition = ofVec2f(ofGetMouseX(), ofGetMouseY());
+		breadCrumbs.clear();
 	}
+
+	leaveCrumbs();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	//kinemtaicDraw();
-	ofSetColor(200, 0, 150);
+	ofSetColor(250, 0, 150);
+	ofNoFill();
+	ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRad); // slow rad
+	ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRad); // target rad
+
+	ofFill();
 	ofDrawCircle(seek.mCharacter.mPosition, 20);
-	ofDrawCircle(seek.mTarget, 15);
+	ofDrawCircle(seek.mTarget.mPosition, 15);
+
+	DrawCrumbs();
 }
 
 
 namespace {
+	
 	void leaveCrumbs()
 	{
-		sPassedTime = 0;
-		breadCrumbs.push_back(p1.mPosition);
+		sPassedTime += ofGetLastFrameTime();
+		if (sPassedTime > sCrumbTime)
+		{
+			sPassedTime = 0;
+			breadCrumbs.push_back(seek.mCharacter.mPosition);
+		}
+	}
+
+
+	void DrawCrumbs()
+	{
+		ofSetColor(250, 200, 150);
+		for (ofVec2f v : breadCrumbs)
+		{
+			ofDrawCircle(v, 13);
+		}
+
 	}
 }
 
@@ -128,10 +164,7 @@ void ofApp::kinemtaicDraw()
 	ofRotateZRad(-p1.mOrientation); // rotate
 	ofTranslate(-p1.mPosition.x, -p1.mPosition.y); //reset
 
-	for (ofVec2f v : breadCrumbs)
-	{
-		ofDrawCircle(v, 20);
-	}
+	
 }
 
 void ofApp::kinematicUpdate()

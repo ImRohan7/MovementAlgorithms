@@ -9,15 +9,22 @@ namespace AI {
 
 		KinemSeek() {};
 
-		KinemSeek(physics::Kinematic c, ofVec2f tar, float sp)
-			: mCharacter(c), mTarget(tar), mMaxSpeed(sp){}
+		KinemSeek(physics::Kinematic c, physics::Kinematic tar, float maxSp)
+			: mCharacter(c), mTarget(tar), mMaxSpeed(maxSp){}
 
 		// returns steering based on player and target
 		physics::SteeringOutput getSteering();
 
+		physics::SteeringOutput getSteeringForArrival();
+
 		physics::Kinematic mCharacter;
-		ofVec2f mTarget;
+		physics::Kinematic mTarget;
 		float mMaxSpeed;
+		float mMaxAccel;
+		// for arrival
+		float mTargetRad;
+		float mSlowRad;
+		float mTimeTotarget;
 	};
 }
 
