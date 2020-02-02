@@ -14,13 +14,16 @@ namespace AI {
 
 		// returns steering based on player and target
 		physics::SteeringOutput getSteering();
-
+		// Dynamic arrive
 		physics::SteeringOutput getSteeringForArrival();
+		// Wander
+		physics::SteeringOutput getSteeringForWandering();
 
 		physics::Kinematic mCharacter;
 		physics::Kinematic mTarget;
 		float mMaxSpeed;
 		float mMaxAccel;
+		float mMaxRotat;
 		// for arrival
 		float mTargetRad;
 		float mSlowRad;
