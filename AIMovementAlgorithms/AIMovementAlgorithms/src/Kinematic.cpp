@@ -1,11 +1,12 @@
 #include "Kinematic.h"
 
-#define MaxVel 5
+#define MaxVel 2
 
 namespace physics {
 
 	void Kinematic::update(SteeringOutput iSteering, float iElapsedTime)
 	{
+		
 		mPosition += mVelocity * iElapsedTime*50;
 		mOrientation += mRotaionvel * iElapsedTime;
 

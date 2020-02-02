@@ -142,7 +142,7 @@ void ofApp::AISetup()
 		seek.mMaxAccel = 10;
 		seek.mSlowRad = 250;
 		seek.mTargetRad = 25;
-		seek.mMaxRotat = 0.3;
+		seek.mMaxRotat = 0.25;
 		seek.mMaxSpeed = 1;
 		seek.mTimeTotarget = 0.2f;
 		break;

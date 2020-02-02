@@ -59,7 +59,7 @@ physics::SteeringOutput AI::KinemSeek::getSteeringForWandering()
 	float y = sin(mCharacter.mOrientation);
 	steering.mLinear = mMaxSpeed * ofVec2f(x, y);
 
-	steering.mAngular = rand() % 30;
+	steering.mAngular = (rand() % 25)/10;
 	steering.mAngular *= mMaxRotat;
 
 	return steering;
