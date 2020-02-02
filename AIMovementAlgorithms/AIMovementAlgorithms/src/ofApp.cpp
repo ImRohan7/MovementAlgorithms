@@ -3,77 +3,51 @@
 #include "Kinematic.h"
 #include "../KinemSeek.h"
 #include <vector>
+#include "../AISystem.h"
 
 namespace {
 	int sHeight = 1080/2; // Y
 	int sWidth = 1920/2; // X
 	// Kinematic
-	physics::Kinematic p1;
-	physics::Kinematic tar;
+	physics::Kinematic charct;
+	physics::Kinematic targt;
 	AI::KinemSeek seek;
 	physics::SteeringOutput steer;
 	
 	int sState = 1;
 	std::vector<ofVec2f> breadCrumbs;
-	float sPassedTime;
+	float sPassedTime = 0.0f;
 	float sCrumbTime = 0.3f;
 
-	void leaveCrumbs();
+	AISystem::Algo sAlgo; // which algo are we running
+
+	void RecordCrumbs();
 	void DrawCrumbs();
 }
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	//kinematicSetup();
-
-	p1.mPosition = ofVec2f(200, 200);
-	p1.mVelocity = ofVec2f(0.2, 2);
-	tar.mPosition = ofVec2f(600, 600);
-	tar.mVelocity = ofVec2f(1, 1);
-	seek = AI::KinemSeek(p1, tar, 8.0f);
-	seek.mMaxAccel = 10;
-	seek.mSlowRad = 200;
-	seek.mTargetRad = 40;
-	seek.mTimeTotarget = 0.4f;
-
+	sAlgo = AISystem::Algo::SeekArrive;
+	AISetup();
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	//kinematicUpdate();
-	steer = seek.getSteeringForArrival();
-	seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
-	seek.mTarget.update(physics::SteeringOutput() , ofGetLastFrameTime()); // update
-
-	if (ofGetMousePressed())
-	{
-		seek.mTarget.mPosition = ofVec2f(ofGetMouseX(), ofGetMouseY());
-		breadCrumbs.clear();
-	}
-
-	leaveCrumbs();
+	AIUpdate();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	//kinemtaicDraw();
-	ofSetColor(250, 0, 150);
-	ofNoFill();
-	ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRad); // slow rad
-	ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRad); // target rad
-
-	ofFill();
-	ofDrawCircle(seek.mCharacter.mPosition, 20);
-	ofDrawCircle(seek.mTarget.mPosition, 15);
-
-	DrawCrumbs();
+	AIDraw();
+	
 }
 
 
 namespace {
 	
-	void leaveCrumbs()
+	void RecordCrumbs()
 	{
 		sPassedTime += ofGetLastFrameTime();
 		if (sPassedTime > sCrumbTime)
@@ -83,13 +57,12 @@ namespace {
 		}
 	}
 
-
 	void DrawCrumbs()
 	{
 		ofSetColor(250, 200, 150);
 		for (ofVec2f v : breadCrumbs)
 		{
-			ofDrawCircle(v, 13);
+			ofDrawCircle(v, 10);
 		}
 
 	}
@@ -101,38 +74,41 @@ void ofApp::kinematicMotion()
 	switch (sState)
 	{
 	case 1:
-		if (p1.mPosition.x >= sWidth)
+		if (charct.mPosition.x >= sWidth)
 		{
 			sState++;
-			p1.mVelocity = ofVec2f(0, -1); // up
+			charct.mVelocity = ofVec2f(0, -1); // up
 			steer.mLinear = ofVec2f(0, -vel); // vel
-			p1.mOrientation = p1.getNewOrientation(p1.mVelocity, 0); // rotaion
+			charct.updateOrientation(); // rotaion
 		}
 		break;
 	case 2:
-		if (p1.mPosition.y <= 50)
+		if (charct.mPosition.y <= 50)
 		{
 			sState++;
-			p1.mVelocity = ofVec2f(-1, 0);
+			charct.mVelocity = ofVec2f(-1, 0);
 			steer.mLinear = ofVec2f(-vel,0); // vel
-			p1.mOrientation = p1.getNewOrientation(p1.mVelocity, p1.mOrientation); // rotaion
+			charct.updateOrientation(); // rotaion
+			
 		}
 		break;
 	case 3:
-		if (p1.mPosition.x <= 50)
+		if (charct.mPosition.x <= 50)
 		{
 			sState++;
-			p1.mVelocity = ofVec2f(0, 1);
+			charct.mVelocity = ofVec2f(0, 1);
 			steer.mLinear = ofVec2f(0,vel); // vel
-			p1.mOrientation = p1.getNewOrientation(p1.mVelocity, p1.mOrientation); // rotaion
+			charct.updateOrientation(); // rotaion
+
 		}
 		break;
 	case 4:
-		if (p1.mPosition.y >= sHeight)
+		if (charct.mPosition.y >= sHeight)
 		{
-			p1.mVelocity = ofVec2f(1, 0);
-			p1.mOrientation = p1.getNewOrientation(p1.mVelocity, p1.mOrientation); // rotaion
-			p1.mVelocity = ofVec2f(0, 0);
+			charct.mVelocity = ofVec2f(1, 0);
+			charct.updateOrientation(); // rotaion
+
+			charct.mVelocity = ofVec2f(0, 0);
 		}
 	default:
 		break;
@@ -140,42 +116,139 @@ void ofApp::kinematicMotion()
 }
 
 
-void ofApp::kinematicSetup()
+void ofApp::AISetup()
 {
-	p1.mPosition = ofVec2f(100, sHeight);
-	p1.mVelocity = ofVec2f(5, 0);
-	p1.mOrientation = 0.0f; // radians
-	steer.mAngular = 0.0;
-	steer.mLinear = ofVec2f(2.0f, 0.0f);
+	switch (sAlgo)
+	{
+	case AISystem::Algo::Basic_Kinematic:
+		charct.mPosition = ofVec2f(100, sHeight);
+		charct.mVelocity = ofVec2f(5, 0);
+		charct.mOrientation = 0.0f; // radians
+		steer.mAngular = 0.0;
+		steer.mLinear = ofVec2f(2.0f, 0.0f);
+		break;
 
-	leaveCrumbs();
+	case AISystem::Algo::SeekArrive:
+	case AISystem::Algo::SeekArrive2:
+		charct.mPosition = ofVec2f(200, 200);
+		charct.mVelocity = ofVec2f(0.2, 2);
+		targt.mPosition = ofVec2f(600, 600);
+		targt.mVelocity = ofVec2f(0.8, 0);
+		seek = AI::KinemSeek(charct, targt, 8.0f);
+		seek.mMaxAccel = 10;
+		seek.mSlowRad = 200;
+		seek.mTargetRad = 25;
+		seek.mTimeTotarget = 0.2f;
+		break;
+	case AISystem::Algo::WanderSteering:
+		
+		break;
+	case AISystem::Algo::Flocking:
+
+		break;
+
+	default:
+		std::cout << "Unknown case passed";
+		break;
+	}
+	
+
+	RecordCrumbs();
 }
 
-
-void ofApp::kinemtaicDraw()
+void ofApp::AIUpdate()
 {
-	ofTranslate(p1.mPosition.x, p1.mPosition.y);
-	ofRotateZRad(p1.mOrientation); // rotate
-	ofSetColor(150, 200, 0);
-	ofDrawTriangle(ofVec2f(0, -50), ofVec2f(0, 50), ofVec2f(100, 0));
-	ofSetColor(225, 0, 0);
-	ofDrawCircle(0, 0, 50);
+	RecordCrumbs();
+	
+	switch (sAlgo)
+	{
+	case AISystem::Algo::Basic_Kinematic:
+		charct.update(steer, ofGetLastFrameTime());
+		kinematicMotion();
 
-	ofRotateZRad(-p1.mOrientation); // rotate
-	ofTranslate(-p1.mPosition.x, -p1.mPosition.y); //reset
+		break;
+	case AISystem::Algo::SeekArrive:
+	case AISystem::Algo::SeekArrive2:
+		
+		steer = seek.getSteeringForArrival();
+		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
+		seek.mTarget.update(physics::SteeringOutput(), ofGetLastFrameTime()); // update
 
+		if (ofGetMousePressed())
+		{
+			seek.mTarget.mPosition = ofVec2f(ofGetMouseX(), ofGetMouseY());
+			breadCrumbs.clear();
+		}
+
+		seek.mCharacter.updateOrientation(); // rotaion
+
+		break;
+	case AISystem::Algo::WanderSteering:
+
+		break;
+	case AISystem::Algo::Flocking:
+
+		break;
+
+	default:
+		std::cout << "Unknown case passed";
+		break;
+	}
 	
 }
 
-void ofApp::kinematicUpdate()
+void ofApp::AIDraw()
 {
-	p1.update(steer, ofGetLastFrameTime());
-	kinematicMotion();
+		DrawCrumbs();
+	switch (sAlgo)
+	{
+	case AISystem::Algo::Basic_Kinematic:
+		ofTranslate(charct.mPosition.x, charct.mPosition.y);
+		ofRotateZRad(charct.mOrientation); // rotate
+		ofSetColor(150, 200, 0);
+		ofDrawTriangle(ofVec2f(0, -50), ofVec2f(0, 50), ofVec2f(100, 0));
+		ofSetColor(225, 0, 0);
+		ofDrawCircle(0, 0, 50);
 
-	sPassedTime += ofGetLastFrameTime();
-	if (sPassedTime > 0.2)
-		leaveCrumbs();
+		ofRotateZRad(-charct.mOrientation); // reset rotate
+		ofTranslate(-charct.mPosition.x, -charct.mPosition.y); //reset
+		break;
+
+	case AISystem::Algo::SeekArrive:
+	case AISystem::Algo::SeekArrive2:
+		ofSetColor(250, 0, 150);
+		ofNoFill();
+		ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRad); // slow rad
+		ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRad); // target rad
+		ofFill();
+		ofDrawCircle(seek.mTarget.mPosition, 15);
+		ofDrawLine(seek.mCharacter.mPosition, seek.mCharacter.mPosition + 10 * steer.mLinear);
+		
+		ofTranslate(seek.mCharacter.mPosition);
+		ofRotateZRad(seek.mCharacter.mOrientation); // rotate
+		ofDrawCircle(ofVec2f(0,0),20);
+		ofSetColor(150, 200, 0);
+		ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
+		break;
+
+	case AISystem::Algo::WanderSteering:
+
+		break;
+	case AISystem::Algo::Flocking:
+
+		break;
+
+	default:
+		std::cout << "Unknown case passed";
+		break;
+	}
+	
+
+	////////
+	
 }
+
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){

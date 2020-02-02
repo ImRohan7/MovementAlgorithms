@@ -13,6 +13,7 @@
     <ClCompile Include="KinemSeek.cpp">
       <Filter>KinemSeek</Filter>
     </ClCompile>
+    <ClCompile Include="AISystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -35,6 +36,7 @@
     <ClInclude Include="KinemSeek.h">
       <Filter>KinemSeek</Filter>
     </ClInclude>
+    <ClInclude Include="AISystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

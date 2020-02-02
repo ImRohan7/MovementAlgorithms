@@ -7,11 +7,11 @@ physics::SteeringOutput AI::KinemSeek::getSteering()
 
 	ofVec2f dir = (mTarget.mPosition - mCharacter.mPosition).normalize(); // get vel dir
 	steering.mLinear = dir * mMaxSpeed;
-
+	
 	return steering;
 }
 
-// with arrive
+// with dynamic arrive
 physics::SteeringOutput AI::KinemSeek::getSteeringForArrival()
 {
 	physics::SteeringOutput steering;
@@ -38,6 +38,7 @@ physics::SteeringOutput AI::KinemSeek::getSteeringForArrival()
 
 	// get acceleration dir
 	steering.mLinear = targetVel - mCharacter.mVelocity;
+	//steering.mLinear = targetVel;
 	steering.mLinear /= mTimeTotarget;
 
 	// clamp acceleration

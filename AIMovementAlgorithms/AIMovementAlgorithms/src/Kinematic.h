@@ -3,7 +3,6 @@
 #include "ofVectorMath.h"
 
 
-
 namespace physics {
 
 	/* Steering behaviors operate with these kinematic data. They return accelerations that will
@@ -21,7 +20,8 @@ namespace physics {
 	{
 
 		void update(SteeringOutput iSteering, float iElapsedTime);
-		float getNewOrientation(ofVec2f ivel, float iCurOrientation);
+		static float getNewOrientation(ofVec2f ivel, float iCurOrientation);
+		void updateOrientation(); // based on velocity
 
 	public:
 		ofVec2f mPosition;

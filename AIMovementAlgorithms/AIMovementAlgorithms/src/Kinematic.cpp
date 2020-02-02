@@ -20,9 +20,13 @@ namespace physics {
 
 
 	// returns new orientaion based on velocity
-	float Kinematic::getNewOrientation(ofVec2f ivel, float iCurOrientation)
+	float Kinematic::getNewOrientation(ofVec2f ivel, float ior)
 	{
-		return ivel.length() > 0 ? atan2(ivel.y, ivel.x) : iCurOrientation;
+		return ivel.length() > 0 ? atan2(ivel.y, ivel.x) : ior;
 	}
 
+	void Kinematic::updateOrientation()
+	{
+		mOrientation =  mVelocity.length() > 0 ? atan2(mVelocity.y, mVelocity.x) : mOrientation;
+	}
 }

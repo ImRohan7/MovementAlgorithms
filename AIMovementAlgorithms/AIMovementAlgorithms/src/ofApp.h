@@ -26,9 +26,9 @@ class ofApp : public ofBaseApp{
 		// ============
 		// 1-Kinematic Algo
 
-		void kinematicSetup();
-		void kinemtaicDraw();
-		void kinematicUpdate();
+		void AISetup();
+		void AIDraw();
+		void AIUpdate();
 		void kinematicMotion();
 
 };
