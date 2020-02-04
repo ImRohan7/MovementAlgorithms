@@ -1,4 +1,5 @@
 #include "KinemSeek.h"
+#include <random>
 
 // for no arrival
 physics::SteeringOutput AI::KinemSeek::getSteering()
@@ -59,7 +60,8 @@ physics::SteeringOutput AI::KinemSeek::getSteeringForWandering()
 	float y = sin(mCharacter.mOrientation);
 	steering.mLinear = mMaxSpeed * ofVec2f(x, y);
 
-	steering.mAngular = (rand() % 25)/10;
+	float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	steering.mAngular = (rand()%2 == 0) ? r : -r;
 	steering.mAngular *= mMaxRotat;
 
 	return steering;

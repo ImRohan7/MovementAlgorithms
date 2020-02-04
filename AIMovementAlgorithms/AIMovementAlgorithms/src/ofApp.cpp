@@ -135,19 +135,26 @@ void ofApp::AISetup()
 	case AISystem::Algo::SeekArrive:
 	case AISystem::Algo::SeekArrive2:
 		charct.mPosition = ofVec2f(200, 200);
+		charct.mVelocity = ofVec2f(0.5, 3);
+		targt.mPosition = ofVec2f(600, 600);
+		targt.mVelocity = ofVec2f(1.5f, 0);
+		seek = AI::KinemSeek(charct, targt, 8.0f);
+		seek.mMaxAccel = 10;
+		seek.mSlowRad = 250;
+		seek.mTargetRad = 25;
+		//seek.mMaxRotat = 20;
+		//seek.mMaxSpeed = 8;
+		seek.mTimeTotarget = 0.2f;
+		break;
+	case AISystem::Algo::WanderSteering:
+		charct.mPosition = ofVec2f(200, 200);
 		charct.mVelocity = ofVec2f(0.5, 0.4);
 		targt.mPosition = ofVec2f(600, 600);
 		targt.mVelocity = ofVec2f(0.8, 0);
 		seek = AI::KinemSeek(charct, targt, 8.0f);
 		seek.mMaxAccel = 10;
-		seek.mSlowRad = 250;
-		seek.mTargetRad = 25;
-		seek.mMaxRotat = 0.25;
-		seek.mMaxSpeed = 1;
-		seek.mTimeTotarget = 0.2f;
-		break;
-	case AISystem::Algo::WanderSteering:
-		
+		seek.mMaxRotat = 20;
+		seek.mMaxSpeed = 8;
 		break;
 	case AISystem::Algo::Flocking:
 
@@ -176,8 +183,7 @@ void ofApp::AIUpdate()
 	case AISystem::Algo::SeekArrive:
 	case AISystem::Algo::SeekArrive2:
 		
-	//	steer = seek.getSteeringForArrival();
-		steer = seek.getSteeringForWandering();
+		steer = seek.getSteeringForArrival();
 		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
 		seek.mTarget.update(physics::SteeringOutput(), ofGetLastFrameTime()); // update
 
@@ -187,10 +193,12 @@ void ofApp::AIUpdate()
 			breadCrumbs.clear();
 		}
 
-		//seek.mCharacter.updateOrientation(); // rotaion
+		seek.mCharacter.updateOrientation(); // rotaion
 
 		break;
 	case AISystem::Algo::WanderSteering:
+		steer = seek.getSteeringForWandering();
+		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
 
 		break;
 	case AISystem::Algo::Flocking:
@@ -239,7 +247,14 @@ void ofApp::AIDraw()
 		break;
 
 	case AISystem::Algo::WanderSteering:
+		ofSetColor(250, 0, 150);
+		ofDrawLine(seek.mCharacter.mPosition, seek.mCharacter.mPosition + 10 * steer.mLinear);
 
+		ofTranslate(seek.mCharacter.mPosition);
+		ofRotateZRad(seek.mCharacter.mOrientation); // rotate
+		ofDrawCircle(ofVec2f(0, 0), 20);
+		ofSetColor(150, 200, 0);
+		ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
 		break;
 	case AISystem::Algo::Flocking:
 
