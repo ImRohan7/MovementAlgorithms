@@ -13,7 +13,7 @@ namespace {
 	physics::Kinematic targt;
 	AI::KinemSeek seek;
 	physics::SteeringOutput steer;
-	
+	std::vector<physics::Kinematic> followers; // for flocking
 	int sState = 1;
 	std::vector<ofVec2f> breadCrumbs;
 	float sPassedTime = 0.0f;

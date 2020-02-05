@@ -1,4 +1,6 @@
 #pragma once
+#include "src/Kinematic.h"
+
 namespace AISystem {
 	enum Algo
 	{
@@ -8,6 +10,15 @@ namespace AISystem {
 		WanderSteering,
 		Flocking
 	};
+
+
+	// retunrs steering individual
+	physics::SteeringOutput getSteeringForFlocking()
+	{
+
+	}
+
+
 	/*
 	switch (sAlgo)
 	{

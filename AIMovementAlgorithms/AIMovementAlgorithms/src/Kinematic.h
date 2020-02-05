@@ -28,6 +28,7 @@ namespace physics {
 		ofVec2f mVelocity;
 		float mOrientation;
 		float mRotaionvel; // rot velocity
+		float mWight;
 	};
 
 	
