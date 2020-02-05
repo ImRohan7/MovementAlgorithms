@@ -13,8 +13,10 @@ namespace AISystem {
 		Flocking
 	};
 
-	static ofVec2f sCom;
-	static float sMaxSpeed = 8.0f;
+	static ofVec2f sCom; // center of mass
+	static ofVec2f sComVel; // center of vel
+
+	static float sMaxSpeed = 15.0f;
 
 	static void calcCom(
 		physics::Kinematic leader, vector<physics::Kinematic> foll )
@@ -32,6 +34,22 @@ namespace AISystem {
 		sCom = com;
 	}
 
+	static void calcCovel(
+		physics::Kinematic leader, vector<physics::Kinematic> foll)
+	{
+		ofVec2f covel;
+		float total = 0;
+		for (physics::Kinematic k : foll)
+		{
+			covel += (k.mVelocity * k.mWeight);
+			total += k.mWeight;
+		}
+		covel += (leader.mVelocity*leader.mWeight);
+		total += leader.mWeight;
+		covel /= total;
+		sComVel = covel;
+	}
+
 	// retunrs steering individual
 	static physics::SteeringOutput getSteeringForFlocking(
 	physics::Kinematic leader, vector<physics::Kinematic> foll, int i	)
@@ -40,14 +58,14 @@ namespace AISystem {
 		physics::Kinematic chr = foll[i];
 		// seek to center of mass + look where going
 		// com
-		ofVec2f velA;
-		velA = sCom - chr.mPosition;
-		velA = velA.normalize();
-		velA *= sMaxSpeed;
+		ofVec2f seekVel;
+		seekVel = sCom - chr.mPosition;
+		seekVel = seekVel.normalize();
+		seekVel *= sMaxSpeed;
 		// angle
-		steer.mAngular = chr.getNewOrientation(velA, chr.mOrientation);
+		steer.mAngular = chr.getNewOrientation(seekVel, chr.mOrientation);
 		
-		ofVec2f velB;
+		ofVec2f separtVel;
 		// separate from others
 		for (int j=0; j<foll.size(); j++)
 		{
@@ -57,17 +75,17 @@ namespace AISystem {
 				{
 					ofVec2f a = (chr.mPosition - foll[j].mPosition);
 					a = a.normalize();
-					velB += a * 12.0f;
-					steer.mLinear = velB;
-					return steer;
+					separtVel += a * 12.0f;
+					steer.mLinear = separtVel;
+					//return steer;
 				}
 			}
 		}
 
 		// velocity match
-		ofVec2f velC = leader.mVelocity-chr.mVelocity;
+		ofVec2f matchVel = sComVel - chr.mVelocity;
 
-		steer.mLinear = velA + velB + velC;
+		steer.mLinear = seekVel*5 + separtVel * 10 + matchVel * 100;
 	
 		return steer;
 	}

@@ -9,7 +9,7 @@ namespace {
 	int sHeight = 1080/2; // Y
 	int sWidth = 1920/2; // X
 	// Kinematic
-	physics::Kinematic charct; // leader
+	physics::Kinematic lead; // leader
 	physics::Kinematic targt;
 	AI::KinemSeek seek;
 	physics::SteeringOutput steer;
@@ -76,41 +76,41 @@ void ofApp::kinematicMotion()
 	switch (sState)
 	{
 	case 1:
-		if (charct.mPosition.x >= sWidth)
+		if (lead.mPosition.x >= sWidth)
 		{
 			sState++;
-			charct.mVelocity = ofVec2f(0, -1); // up
+			lead.mVelocity = ofVec2f(0, -1); // up
 			steer.mLinear = ofVec2f(0, -vel); // vel
-			charct.updateOrientation(); // rotaion
+			lead.updateOrientation(); // rotaion
 		}
 		break;
 	case 2:
-		if (charct.mPosition.y <= 50)
+		if (lead.mPosition.y <= 50)
 		{
 			sState++;
-			charct.mVelocity = ofVec2f(-1, 0);
+			lead.mVelocity = ofVec2f(-1, 0);
 			steer.mLinear = ofVec2f(-vel,0); // vel
-			charct.updateOrientation(); // rotaion
+			lead.updateOrientation(); // rotaion
 			
 		}
 		break;
 	case 3:
-		if (charct.mPosition.x <= 50)
+		if (lead.mPosition.x <= 50)
 		{
 			sState++;
-			charct.mVelocity = ofVec2f(0, 1);
+			lead.mVelocity = ofVec2f(0, 1);
 			steer.mLinear = ofVec2f(0,vel); // vel
-			charct.updateOrientation(); // rotaion
+			lead.updateOrientation(); // rotaion
 
 		}
 		break;
 	case 4:
-		if (charct.mPosition.y >= sHeight)
+		if (lead.mPosition.y >= sHeight)
 		{
-			charct.mVelocity = ofVec2f(1, 0);
-			charct.updateOrientation(); // rotaion
+			lead.mVelocity = ofVec2f(1, 0);
+			lead.updateOrientation(); // rotaion
 
-			charct.mVelocity = ofVec2f(0, 0);
+			lead.mVelocity = ofVec2f(0, 0);
 		}
 	default:
 		break;
@@ -125,20 +125,20 @@ void ofApp::AISetup()
 	case AISystem::Algo::Basic_Kinematic:
 
 
-		charct.mPosition = ofVec2f(100, sHeight);
-		charct.mVelocity = ofVec2f(5, 0);
-		charct.mOrientation = 0.0f; // radians
+		lead.mPosition = ofVec2f(100, sHeight);
+		lead.mVelocity = ofVec2f(5, 0);
+		lead.mOrientation = 0.0f; // radians
 		steer.mAngular = 0.0;
 		steer.mLinear = ofVec2f(2.0f, 0.0f);
 		break;
 
 	case AISystem::Algo::SeekArrive:
 	case AISystem::Algo::SeekArrive2:
-		charct.mPosition = ofVec2f(200, 200);
-		charct.mVelocity = ofVec2f(0.5, 3);
+		lead.mPosition = ofVec2f(200, 200);
+		lead.mVelocity = ofVec2f(0.5, 3);
 		targt.mPosition = ofVec2f(600, 600);
 		targt.mVelocity = ofVec2f(1.5f, 0);
-		seek = AI::KinemSeek(charct, targt, 8.0f);
+		seek = AI::KinemSeek(lead, targt, 8.0f);
 		seek.mMaxAccel = 10;
 		seek.mSlowRad = 250;
 		seek.mTargetRad = 25;
@@ -147,20 +147,20 @@ void ofApp::AISetup()
 		seek.mTimeTotarget = 0.2f;
 		break;
 	case AISystem::Algo::WanderSteering:
-		charct.mPosition = ofVec2f(200, 200);
-		charct.mVelocity = ofVec2f(0.5, 0.4);
+		lead.mPosition = ofVec2f(200, 200);
+		lead.mVelocity = ofVec2f(0.5, 0.4);
 		targt.mPosition = ofVec2f(600, 600);
 		targt.mVelocity = ofVec2f(0.8, 0);
-		seek = AI::KinemSeek(charct, targt, 8.0f);
+		seek = AI::KinemSeek(lead, targt, 8.0f);
 		seek.mMaxAccel = 10;
 		seek.mMaxRotat = 20;
 		seek.mMaxSpeed = 8;
 		break;
 	case AISystem::Algo::Flocking:
-		charct.mPosition = ofVec2f(400, 500);
-		charct.mSepRadius = 10;
-		charct.mVelocity = ofVec2f(2, 0);
-		charct.mWeight = 100;
+		lead.mPosition = ofVec2f(400, 400);
+		lead.mSepRadius = 200;
+		lead.mVelocity = ofVec2f(2.5, 0);
+		lead.mWeight = 100;
 		// followers
 		followers.push_back(physics::Kinematic(ofVec2f(50,300)));
 		followers.push_back(physics::Kinematic(ofVec2f(50,400)));
@@ -171,8 +171,8 @@ void ofApp::AISetup()
 	
 		for (int i=0; i<followers.size(); i++)
 		{
-			followers[i].mSepRadius = 15;
-			followers[i].mWeight = 5;
+			followers[i].mSepRadius = 100;
+			followers[i].mWeight = 20;
 			
 		}
 
@@ -194,7 +194,7 @@ void ofApp::AIUpdate()
 	switch (sAlgo)
 	{
 	case AISystem::Algo::Basic_Kinematic:
-		charct.update(steer, ofGetLastFrameTime());
+		lead.update(steer, ofGetLastFrameTime());
 		kinematicMotion();
 
 		break;
@@ -220,13 +220,20 @@ void ofApp::AIUpdate()
 
 		break;
 	case AISystem::Algo::Flocking:
-		charct.update(physics::SteeringOutput(), ofGetLastFrameTime());
-		AISystem::calcCom(charct, followers);
+		lead.update(physics::SteeringOutput(), ofGetLastFrameTime());
+		AISystem::calcCom(lead, followers);
+		AISystem::calcCovel(lead, followers);
 		for (int i = 0; i < followers.size(); i++)
 		{
-			auto st = AISystem::getSteeringForFlocking(charct, followers, i);
+			auto st = AISystem::getSteeringForFlocking(lead, followers, i);
 			followers[i].update(st, ofGetLastFrameTime());
-			//followers[i].updateOrientation();
+			followers[i].updateOrientation();
+		}
+
+		// back to screen
+		if (lead.mPosition.x > sWidth)
+		{
+			lead.mPosition.x -= sWidth;
 		}
 		break;
 
@@ -243,15 +250,15 @@ void ofApp::AIDraw()
 	switch (sAlgo)
 	{
 	case AISystem::Algo::Basic_Kinematic:
-		ofTranslate(charct.mPosition.x, charct.mPosition.y);
-		ofRotateZRad(charct.mOrientation); // rotate
+		ofTranslate(lead.mPosition.x, lead.mPosition.y);
+		ofRotateZRad(lead.mOrientation); // rotate
 		ofSetColor(150, 200, 0);
 		ofDrawTriangle(ofVec2f(0, -50), ofVec2f(0, 50), ofVec2f(100, 0));
 		ofSetColor(225, 0, 0);
 		ofDrawCircle(0, 0, 50);
 
-		ofRotateZRad(-charct.mOrientation); // reset rotate
-		ofTranslate(-charct.mPosition.x, -charct.mPosition.y); //reset
+		ofRotateZRad(-lead.mOrientation); // reset rotate
+		ofTranslate(-lead.mPosition.x, -lead.mPosition.y); //reset
 		break;
 
 	case AISystem::Algo::SeekArrive:
@@ -283,10 +290,17 @@ void ofApp::AIDraw()
 		break;
 	case AISystem::Algo::Flocking:
 		ofSetColor(250, 0, 150);
-		ofDrawCircle(charct.mPosition, 20);
+		ofDrawCircle(lead.mPosition, 20);
 		for (auto f : followers)
 		{
-			ofDrawCircle(f.mPosition, 15);
+			ofTranslate(f.mPosition);
+			ofRotateZRad(f.mOrientation); // rotate
+			ofDrawCircle(ofVec2f(0,0), 15);
+			ofSetColor(150, 200, 0);
+			ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
+			ofRotateZRad(-f.mOrientation); // rotate
+			ofTranslate(-f.mPosition);
+
 		}
 		break;
 
