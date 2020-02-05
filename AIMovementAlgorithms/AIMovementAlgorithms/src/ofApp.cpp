@@ -9,7 +9,7 @@ namespace {
 	int sHeight = 1080/2; // Y
 	int sWidth = 1920/2; // X
 	// Kinematic
-	physics::Kinematic charct;
+	physics::Kinematic charct; // leader
 	physics::Kinematic targt;
 	AI::KinemSeek seek;
 	physics::SteeringOutput steer;
@@ -27,7 +27,7 @@ namespace {
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	sAlgo = AISystem::Algo::SeekArrive;
+	sAlgo = AISystem::Algo::Flocking;
 	AISetup();
 
 }
@@ -157,6 +157,24 @@ void ofApp::AISetup()
 		seek.mMaxSpeed = 8;
 		break;
 	case AISystem::Algo::Flocking:
+		charct.mPosition = ofVec2f(400, 500);
+		charct.mSepRadius = 10;
+		charct.mVelocity = ofVec2f(2, 0);
+		charct.mWeight = 100;
+		// followers
+		followers.push_back(physics::Kinematic(ofVec2f(50,300)));
+		followers.push_back(physics::Kinematic(ofVec2f(50,400)));
+		followers.push_back(physics::Kinematic(ofVec2f(50,500)));
+		followers.push_back(physics::Kinematic(ofVec2f(200,300)));
+		followers.push_back(physics::Kinematic(ofVec2f(200,400)));
+		followers.push_back(physics::Kinematic(ofVec2f(200,500)));
+	
+		for (int i=0; i<followers.size(); i++)
+		{
+			followers[i].mSepRadius = 15;
+			followers[i].mWeight = 5;
+			
+		}
 
 		break;
 
@@ -171,7 +189,7 @@ void ofApp::AISetup()
 
 void ofApp::AIUpdate()
 {
-	RecordCrumbs();
+	//RecordCrumbs();
 	
 	switch (sAlgo)
 	{
@@ -202,7 +220,14 @@ void ofApp::AIUpdate()
 
 		break;
 	case AISystem::Algo::Flocking:
-
+		charct.update(physics::SteeringOutput(), ofGetLastFrameTime());
+		AISystem::calcCom(charct, followers);
+		for (int i = 0; i < followers.size(); i++)
+		{
+			auto st = AISystem::getSteeringForFlocking(charct, followers, i);
+			followers[i].update(st, ofGetLastFrameTime());
+			//followers[i].updateOrientation();
+		}
 		break;
 
 	default:
@@ -257,7 +282,12 @@ void ofApp::AIDraw()
 		ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
 		break;
 	case AISystem::Algo::Flocking:
-
+		ofSetColor(250, 0, 150);
+		ofDrawCircle(charct.mPosition, 20);
+		for (auto f : followers)
+		{
+			ofDrawCircle(f.mPosition, 15);
+		}
 		break;
 
 	default:

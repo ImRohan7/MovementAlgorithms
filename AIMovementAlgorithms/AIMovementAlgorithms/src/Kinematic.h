@@ -23,12 +23,16 @@ namespace physics {
 		static float getNewOrientation(ofVec2f ivel, float iCurOrientation);
 		void updateOrientation(); // based on velocity
 
+		Kinematic(ofVec2f pos) : mPosition(pos){}
+		Kinematic() {};
+
 	public:
 		ofVec2f mPosition;
 		ofVec2f mVelocity;
 		float mOrientation;
 		float mRotaionvel; // rot velocity
-		float mWight;
+		float mWeight;
+		float mSepRadius;
 	};
 
 	
