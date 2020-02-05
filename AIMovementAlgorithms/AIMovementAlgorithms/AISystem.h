@@ -16,7 +16,7 @@ namespace AISystem {
 	static ofVec2f sCom; // center of mass
 	static ofVec2f sComVel; // center of vel
 
-	static float sMaxSpeed = 15.0f;
+	static float sMaxSpeed = 1.0f;
 
 	static void calcCom(
 		physics::Kinematic leader, vector<physics::Kinematic> foll )
@@ -75,7 +75,7 @@ namespace AISystem {
 				{
 					ofVec2f a = (chr.mPosition - foll[j].mPosition);
 					a = a.normalize();
-					separtVel += a * 12.0f;
+					separtVel += a;
 					steer.mLinear = separtVel;
 					//return steer;
 				}
@@ -84,8 +84,12 @@ namespace AISystem {
 
 		// velocity match
 		ofVec2f matchVel = sComVel - chr.mVelocity;
-
-		steer.mLinear = seekVel*5 + separtVel * 10 + matchVel * 100;
+		float coef = 10;
+		if (seekVel.length() < matchVel.length())
+		{
+			coef = 5;
+		}
+		steer.mLinear = seekVel*20 + separtVel * 100 + matchVel * coef;
 	
 		return steer;
 	}

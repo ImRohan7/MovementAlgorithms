@@ -27,7 +27,7 @@ namespace {
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	sAlgo = AISystem::Algo::Flocking;
+	sAlgo = AISystem::Algo::Basic_Kinematic;
 	AISetup();
 
 }
@@ -81,7 +81,7 @@ void ofApp::kinematicMotion()
 			sState++;
 			lead.mVelocity = ofVec2f(0, -1); // up
 			steer.mLinear = ofVec2f(0, -vel); // vel
-			lead.updateOrientation(); // rotaion
+			lead.updateOrientation(steer); // rotaion
 		}
 		break;
 	case 2:
@@ -90,7 +90,7 @@ void ofApp::kinematicMotion()
 			sState++;
 			lead.mVelocity = ofVec2f(-1, 0);
 			steer.mLinear = ofVec2f(-vel,0); // vel
-			lead.updateOrientation(); // rotaion
+			lead.updateOrientation(steer); // rotaion
 			
 		}
 		break;
@@ -100,7 +100,7 @@ void ofApp::kinematicMotion()
 			sState++;
 			lead.mVelocity = ofVec2f(0, 1);
 			steer.mLinear = ofVec2f(0,vel); // vel
-			lead.updateOrientation(); // rotaion
+			lead.updateOrientation(steer); // rotaion
 
 		}
 		break;
@@ -108,7 +108,7 @@ void ofApp::kinematicMotion()
 		if (lead.mPosition.y >= sHeight)
 		{
 			lead.mVelocity = ofVec2f(1, 0);
-			lead.updateOrientation(); // rotaion
+			lead.updateOrientation(steer); // rotaion
 
 			lead.mVelocity = ofVec2f(0, 0);
 		}
@@ -137,7 +137,7 @@ void ofApp::AISetup()
 		lead.mPosition = ofVec2f(200, 200);
 		lead.mVelocity = ofVec2f(0.5, 3);
 		targt.mPosition = ofVec2f(600, 600);
-		targt.mVelocity = ofVec2f(1.5f, 0);
+		targt.mVelocity = ofVec2f(0, 0);
 		seek = AI::KinemSeek(lead, targt, 8.0f);
 		seek.mMaxAccel = 10;
 		seek.mSlowRad = 250;
@@ -159,8 +159,8 @@ void ofApp::AISetup()
 	case AISystem::Algo::Flocking:
 		lead.mPosition = ofVec2f(400, 400);
 		lead.mSepRadius = 200;
-		lead.mVelocity = ofVec2f(2.5, 0);
-		lead.mWeight = 100;
+		lead.mVelocity = ofVec2f(2, 0);
+		lead.mWeight = 200;
 		// followers
 		followers.push_back(physics::Kinematic(ofVec2f(50,300)));
 		followers.push_back(physics::Kinematic(ofVec2f(50,400)));
@@ -189,7 +189,7 @@ void ofApp::AISetup()
 
 void ofApp::AIUpdate()
 {
-	//RecordCrumbs();
+	RecordCrumbs();
 	
 	switch (sAlgo)
 	{
@@ -211,7 +211,7 @@ void ofApp::AIUpdate()
 			breadCrumbs.clear();
 		}
 
-		seek.mCharacter.updateOrientation(); // rotaion
+		seek.mCharacter.updateOrientation(steer); // rotaion
 
 		break;
 	case AISystem::Algo::WanderSteering:
@@ -227,7 +227,7 @@ void ofApp::AIUpdate()
 		{
 			auto st = AISystem::getSteeringForFlocking(lead, followers, i);
 			followers[i].update(st, ofGetLastFrameTime());
-			followers[i].updateOrientation();
+			followers[i].updateOrientation(steer);
 		}
 
 		// back to screen

@@ -21,7 +21,7 @@ namespace physics {
 
 		void update(SteeringOutput iSteering, float iElapsedTime);
 		static float getNewOrientation(ofVec2f ivel, float iCurOrientation);
-		void updateOrientation(); // based on velocity
+		void updateOrientation(SteeringOutput st); // based on velocity
 
 		Kinematic(ofVec2f pos) : mPosition(pos){}
 		Kinematic() {};

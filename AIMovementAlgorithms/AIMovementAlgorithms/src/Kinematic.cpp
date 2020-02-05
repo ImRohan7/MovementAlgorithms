@@ -1,13 +1,13 @@
 #include "Kinematic.h"
 
-#define MaxVel 8
+#define MaxVel 4
 
 namespace physics {
 
 	void Kinematic::update(SteeringOutput iSteering, float iElapsedTime)
 	{
 		
-		mPosition += mVelocity * iElapsedTime*50;
+		mPosition += mVelocity * iElapsedTime*20;
 		mOrientation += mRotaionvel * iElapsedTime;
 
 		mVelocity += iSteering.mLinear * iElapsedTime;
@@ -26,8 +26,9 @@ namespace physics {
 		return ivel.length() > 0 ? atan2(ivel.y, ivel.x) : ior;
 	}
 
-	void Kinematic::updateOrientation()
+	void Kinematic::updateOrientation(SteeringOutput st)
 	{
 		mOrientation =  mVelocity.length() > 0 ? atan2(mVelocity.y, mVelocity.x) : mOrientation;
+		//mOrientation += atan2(mVelocity.y, mVelocity.x) * st.mAngular*0.01;
 	}
 }
