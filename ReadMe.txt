@@ -1,4 +1,3 @@
-# MovementAlgorithms
 
 Instructionms to set up solution:
 
