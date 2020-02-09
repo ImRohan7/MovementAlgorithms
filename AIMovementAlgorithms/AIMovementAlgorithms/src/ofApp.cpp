@@ -27,7 +27,7 @@ namespace {
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	sAlgo = AISystem::Algo::Basic_Kinematic;
+	sAlgo = AISystem::Algo::SeekArrive;
 	AISetup();
 
 }
@@ -140,11 +140,11 @@ void ofApp::AISetup()
 		targt.mVelocity = ofVec2f(0, 0);
 		seek = AI::KinemSeek(lead, targt, 8.0f);
 		seek.mMaxAccel = 10;
-		seek.mSlowRad = 250;
-		seek.mTargetRad = 25;
+		seek.mSlowRadArrive = 250;
+		seek.mTargetRadArrive = 25;
 		//seek.mMaxRotat = 20;
 		//seek.mMaxSpeed = 8;
-		seek.mTimeTotarget = 0.2f;
+		seek.mTimeTotargetArrive = 0.2f;
 		break;
 	case AISystem::Algo::WanderSteering:
 		lead.mPosition = ofVec2f(200, 200);
@@ -202,6 +202,10 @@ void ofApp::AIUpdate()
 	case AISystem::Algo::SeekArrive2:
 		
 		steer = seek.getSteeringForArrival();
+		steer.mAngular = AISystem::getSteeringFor_Align(
+			seek.mTarget.mOrientation, seek.mCharacter.mOrientation,
+			3.5, 0.2, 0.5).mAngular;
+
 		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
 		seek.mTarget.update(physics::SteeringOutput(), ofGetLastFrameTime()); // update
 
@@ -216,6 +220,7 @@ void ofApp::AIUpdate()
 		break;
 	case AISystem::Algo::WanderSteering:
 		steer = seek.getSteeringForWandering();
+	
 		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
 
 		break;
@@ -226,6 +231,9 @@ void ofApp::AIUpdate()
 		for (int i = 0; i < followers.size(); i++)
 		{
 			auto st = AISystem::getSteeringForFlocking(lead, followers, i);
+			float cOr = followers[i].mVelocity.length() > 0 ? atan2(followers[i].mVelocity.y, followers[i].mVelocity.x) : followers[i].mOrientation;
+
+			st.mAngular = AISystem::getSteeringFor_Align(lead.mOrientation, cOr, 4.5, 0.1,4.5).mAngular;
 			followers[i].update(st, ofGetLastFrameTime());
 			followers[i].updateOrientation(steer);
 		}
@@ -265,8 +273,8 @@ void ofApp::AIDraw()
 	case AISystem::Algo::SeekArrive2:
 		ofSetColor(250, 0, 150);
 		ofNoFill();
-		ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRad); // slow rad
-		ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRad); // target rad
+		ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRadArrive); // slow rad
+		ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRadArrive); // target rad
 		ofFill();
 		ofDrawCircle(seek.mTarget.mPosition, 15);
 		ofDrawLine(seek.mCharacter.mPosition, seek.mCharacter.mPosition + 10 * steer.mLinear);

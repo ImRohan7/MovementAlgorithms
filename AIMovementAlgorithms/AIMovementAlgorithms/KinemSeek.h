@@ -18,16 +18,20 @@ namespace AI {
 		physics::SteeringOutput getSteeringForArrival();
 		// Wander
 		physics::SteeringOutput getSteeringForWandering();
-
+		
 		physics::Kinematic mCharacter;
 		physics::Kinematic mTarget;
 		float mMaxSpeed;
 		float mMaxAccel;
 		float mMaxRotat;
 		// for arrival
-		float mTargetRad;
-		float mSlowRad;
-		float mTimeTotarget;
+		float mTargetRadArrive;
+		float mSlowRadArrive;
+		float mTimeTotargetArrive;
+		// for align
+		float mTargetRadAlign;
+		float mSlowRadAlign;
+		float mTimeTotargetAlign;
 	};
 }
 

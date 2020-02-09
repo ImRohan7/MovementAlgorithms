@@ -2,6 +2,9 @@
 #include "src/Kinematic.h"
 #include <vector>
 
+#define MaxRotation 5.0f // max rotation velocity
+#define MaxAccelAngular 4.0f
+
 using namespace std;
 namespace AISystem {
 	enum Algo
@@ -48,6 +51,54 @@ namespace AISystem {
 		total += leader.mWeight;
 		covel /= total;
 		sComVel = covel;
+	}
+
+	// align
+	static physics::SteeringOutput getSteeringFor_Align(float iTarOri, 
+		float iCharOri, float iSlowRadi, float iTarRadi, float iTimeToTarget)
+	{
+		physics::SteeringOutput steering;
+
+		float rot = iTarOri - iCharOri;
+		float targetRot = 0.0f;
+		// map to tange
+		{
+			rot = ofRadToDeg(rot);
+
+			if (rot > 180)
+				rot = rot - 360;
+			else if (rot < -180)
+				rot = 360 - rot;
+			rot = ofDegToRad(rot);
+		}
+
+		float amount = abs(rot);
+
+		// if already withing target radius
+		if (amount < iTarRadi)
+			return steering;
+
+		// if outside alow rad accelerate to max
+		if (amount > iSlowRadi)
+			targetRot = MaxRotation;
+		else
+			targetRot = MaxRotation * amount / iSlowRadi;
+
+		targetRot *= rot / amount;
+
+		steering.mAngular = targetRot - iCharOri;
+		steering.mAngular /= iTimeToTarget;
+
+		//clamp accelration
+		float absval = abs(steering.mAngular);
+		if (absval > MaxAccelAngular)
+		{
+			steering.mAngular /= absval;
+			steering.mAngular *= MaxAccelAngular;
+		}
+
+		steering.mLinear = ofVec2f(0, 0);
+		return steering;
 	}
 
 	// retunrs steering individual
