@@ -12,8 +12,8 @@ namespace physics {
 	struct SteeringOutput {
 
 	public:
-		ofVec2f mLinear; // linear acceleration
-		float mAngular;	// angluar acceleration
+		ofVec2f mLinear = ofVec2f(0.0f, 0.0f); // linear acceleration
+		float mAngular = 0.0f;	// angluar acceleration
 	};
 
 	struct Kinematic

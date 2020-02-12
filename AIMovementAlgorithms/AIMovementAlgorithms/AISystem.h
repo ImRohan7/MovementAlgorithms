@@ -2,8 +2,8 @@
 #include "src/Kinematic.h"
 #include <vector>
 
-#define MaxRotation 5.0f // max rotation velocity
-#define MaxAccelAngular 4.0f
+#define MaxRotation 3.0f // max rotation velocity
+#define MaxAccelAngular 2.5f
 
 using namespace std;
 namespace AISystem {

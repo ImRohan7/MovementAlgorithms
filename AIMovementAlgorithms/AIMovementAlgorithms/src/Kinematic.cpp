@@ -8,7 +8,7 @@ namespace physics {
 	{
 		
 		mPosition += mVelocity * iElapsedTime*20;
-		mOrientation += mRotaionvel * iElapsedTime;
+	//	mOrientation += mRotaionvel * iElapsedTime;
 
 		mVelocity += iSteering.mLinear * iElapsedTime;
 		if (mVelocity.x > MaxVel)	mVelocity.x = MaxVel;
@@ -16,7 +16,7 @@ namespace physics {
 		if (mVelocity.y > MaxVel)	mVelocity.y = MaxVel;
 		if (mVelocity.y < -MaxVel)	mVelocity.y = -MaxVel;
 
-		mOrientation += iSteering.mAngular * iElapsedTime;
+		mOrientation += iSteering.mAngular * iElapsedTime*2;
 	}
 
 

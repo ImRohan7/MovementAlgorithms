@@ -189,6 +189,8 @@ void ofApp::AISetup()
 
 void ofApp::AIUpdate()
 {
+	float A, B;
+
 	RecordCrumbs();
 	
 	switch (sAlgo)
@@ -204,18 +206,23 @@ void ofApp::AIUpdate()
 		steer = seek.getSteeringForArrival();
 		steer.mAngular = AISystem::getSteeringFor_Align(
 			seek.mTarget.mOrientation, seek.mCharacter.mOrientation,
-			3.5, 0.2, 0.5).mAngular;
+			3.5, 0.15f, 0.5).mAngular;
 
 		seek.mCharacter.update(steer, ofGetLastFrameTime()); // update
 		seek.mTarget.update(physics::SteeringOutput(), ofGetLastFrameTime()); // update
 
+		A = ofRadToDeg(seek.mCharacter.mOrientation);
+		B = ofRadToDeg(seek.mTarget.mOrientation);
+
 		if (ofGetMousePressed())
 		{
 			seek.mTarget.mPosition = ofVec2f(ofGetMouseX(), ofGetMouseY());
+			int deg = rand() % 300;
+			seek.mTarget.mOrientation = ofDegToRad(deg);
 			breadCrumbs.clear();
 		}
 
-		seek.mCharacter.updateOrientation(steer); // rotaion
+	//	seek.mCharacter.updateOrientation(steer); // rotaion
 
 		break;
 	case AISystem::Algo::WanderSteering:
@@ -276,14 +283,10 @@ void ofApp::AIDraw()
 		ofDrawCircle(seek.mTarget.mPosition, seek.mSlowRadArrive); // slow rad
 		ofDrawCircle(seek.mTarget.mPosition, seek.mTargetRadArrive); // target rad
 		ofFill();
-		ofDrawCircle(seek.mTarget.mPosition, 15);
+		drawBoid(seek.mTarget.mPosition, seek.mTarget.mOrientation);
 		ofDrawLine(seek.mCharacter.mPosition, seek.mCharacter.mPosition + 10 * steer.mLinear);
 		
-		ofTranslate(seek.mCharacter.mPosition);
-		ofRotateZRad(seek.mCharacter.mOrientation); // rotate
-		ofDrawCircle(ofVec2f(0,0),20);
-		ofSetColor(150, 200, 0);
-		ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
+		drawBoid(seek.mCharacter.mPosition, seek.mCharacter.mOrientation);
 		break;
 
 	case AISystem::Algo::WanderSteering:
@@ -322,6 +325,24 @@ void ofApp::AIDraw()
 	
 }
 
+// rotat and draw BOid with triangle
+void ofApp::drawBoid(ofVec2f pos, float ori)
+{
+	// translate
+	ofTranslate(pos);
+	// rotate
+	ofRotateZRad(ori); // rotate
+	// draw
+	ofSetColor(250, 0, 150);
+	ofDrawCircle(ofVec2f(0, 0), 20);
+	ofSetColor(150, 200, 0);
+	ofDrawTriangle(ofVec2f(10, -20), ofVec2f(10, 20), ofVec2f(30, 0));
+	// reverse rotate
+	ofRotateZRad(-ori); // rotate
+	// translate back
+	ofTranslate(-pos);
+
+}
 
 
 //--------------------------------------------------------------

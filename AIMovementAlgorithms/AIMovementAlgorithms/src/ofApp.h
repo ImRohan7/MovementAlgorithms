@@ -31,4 +31,5 @@ class ofApp : public ofBaseApp{
 		void AIUpdate();
 		void kinematicMotion();
 
+		void drawBoid(ofVec2f pos, float ori);
 };
