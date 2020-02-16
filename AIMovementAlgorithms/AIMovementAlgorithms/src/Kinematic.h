@@ -29,8 +29,8 @@ namespace physics {
 	public:
 		ofVec2f mPosition;
 		ofVec2f mVelocity;
-		float mOrientation;
-		float mRotaionvel; // rot velocity
+		float mOrientation = 0.0f;
+		float mRotaionvel = 0.0f; // rot velocity
 		float mWeight;
 		float mSepRadius;
 	};

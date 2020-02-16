@@ -4,6 +4,7 @@
 #include "../KinemSeek.h"
 #include <vector>
 #include "../AISystem.h"
+//#include "../AISystem.cpp"
 
 namespace {
 	int sHeight = 1080/2; // Y
@@ -27,7 +28,7 @@ namespace {
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	sAlgo = AISystem::Algo::SeekArrive;
+	sAlgo = AISystem::Algo::Basic_Kinematic;
 	AISetup();
 
 }
@@ -55,7 +56,10 @@ namespace {
 		if (sPassedTime > sCrumbTime)
 		{
 			sPassedTime = 0;
-			breadCrumbs.push_back(seek.mCharacter.mPosition);
+			if(sAlgo == AISystem::Algo::Basic_Kinematic)
+				breadCrumbs.push_back(lead.mPosition);
+			else
+				breadCrumbs.push_back(seek.mCharacter.mPosition);
 		}
 	}
 
@@ -202,7 +206,7 @@ void ofApp::AIUpdate()
 		break;
 	case AISystem::Algo::SeekArrive:
 	case AISystem::Algo::SeekArrive2:
-		
+		//float dir = seek.mCharacter.getNewOrientation(seek.mCharacter.mVelocity,seek.mCharacter.mOrientation);
 		steer = seek.getSteeringForArrival();
 		steer.mAngular = AISystem::getSteeringFor_Align(
 			seek.mTarget.mOrientation, seek.mCharacter.mOrientation,
@@ -238,11 +242,12 @@ void ofApp::AIUpdate()
 		for (int i = 0; i < followers.size(); i++)
 		{
 			auto st = AISystem::getSteeringForFlocking(lead, followers, i);
-			float cOr = followers[i].mVelocity.length() > 0 ? atan2(followers[i].mVelocity.y, followers[i].mVelocity.x) : followers[i].mOrientation;
+			float chOr = followers[i].mOrientation;
+			float tOr = atan2(followers[i].mVelocity.y, followers[i].mVelocity.x);
 
-			st.mAngular = AISystem::getSteeringFor_Align(lead.mOrientation, cOr, 4.5, 0.1,4.5).mAngular;
+			st.mAngular = AISystem::getSteeringFor_Align(tOr, chOr, 4.5, 0.1,4.5).mAngular;
 			followers[i].update(st, ofGetLastFrameTime());
-			followers[i].updateOrientation(steer);
+		//	followers[i].updateOrientation(steer);
 		}
 
 		// back to screen
